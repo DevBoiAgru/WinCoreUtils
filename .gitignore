@@ -1,0 +1,57 @@
+## Ignore the build output directories
+[Dd]ebug/
+[Dd]ebugPublic/
+[Dd]ist/
+[Dd]istPublic/
+Release/
+ReleasePublic/
+
+## Ignore Visual Studio configuration files
+.vs/
+.vs2019/
+.vs2022/
+.idea/
+
+## Ignore build files and intermediate files
+*.obj
+*.o
+*.idb
+*.pdb
+*.pch
+*.mod
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Ignore compiled library and executable files
+*.dll
+*.exe
+*.app
+*.lib
+*.a
+*.so
+*.dylib
+*.exp
+*.ilk
+*.sbr
+
+## Ignore package management directories
+.vscode/
+packages/
+
+## Ignore NuGet packages (if you're using NuGet)
+# Uncomment if you're using NuGet
+# *.nupkg
+# .nuget/
+
+## Ignore backup files (e.g., temporary backup files created by editors)
+*~
+*.bak
+*.swp
+
+## Ignore temporary files
+*.log
+*.log.*
+*.tmp
+*.temp
