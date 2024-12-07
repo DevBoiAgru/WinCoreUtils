@@ -9,3 +9,7 @@ The output structure and formatting may differ from the GNU Coreutils.
     -   -l: Long format
     -   -a: Show hidden files
     -   -h: Human-readable sizes
+
+## Known issues:
+
+-   ls does not support wide characters

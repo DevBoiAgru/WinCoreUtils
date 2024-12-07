@@ -79,7 +79,6 @@ int main(int argc, char* argv[]) {
                       << format_time(*files[fileNum].lastWrite) << ljust("", ' ', MARGIN)
                       << fileSize << "\n";
         }
-        
     }
 }
 
