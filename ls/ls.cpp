@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     int termWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
     int longestNameLength{ 0 };
 
-    std::vector<fileData> files;
+    std::deque<fileData> files;
 
     for (f::directory_entry file : f::directory_iterator(f::current_path())) {
         std::string filepath = file.path().string();
@@ -44,19 +44,26 @@ int main(int argc, char* argv[]) {
         if (filename[0] == '.' && !SHOW_ALL)     // Hidden file, do not show by default
             continue;
 
+        // Get last write time and convert to standard library time type
         auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
             f::last_write_time(file.path()) - f::file_time_type::clock::now() + std::chrono::system_clock::now()
         );
 
         std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
 
-        files.push_back(
-            fileData(
-                file.file_size(),
-                &cftime,
-                filename
-            )
-        );
+        // Group all the folders in the front
+        if (file.is_directory())
+            files.push_front(fileData(0, &cftime, filename, Directory));
+        else {
+            fileType fileType = Regular;
+
+            // Check file extension
+            if (filename.length() > 3 && fileTypeMap.find(filename.substr(filename.length() - 3)) != fileTypeMap.end()) {
+                fileType = fileTypeMap[filename.substr(filename.length() - 3)];
+            }
+
+            files.push_back(fileData(file.file_size(), &cftime, filename, fileType));
+        }
 
         if (filename.length() > longestNameLength)
             longestNameLength = filename.length();
@@ -65,20 +72,42 @@ int main(int argc, char* argv[]) {
     // Calculating how many file names we can fit in 1 line
     int columns = termWidth / (longestNameLength + MARGIN);
 
+
+    // Console output
     for (int fileNum = 0; fileNum < files.size(); fileNum++) {
         if (fileNum % columns == 0 && fileNum != 0 && PAD_NAMES)
             std::cout << "\n";
 
+        std::string content;
+
         // Output filenames with appropriate padding (if any)
         if (PAD_NAMES) {
-            std::cout << ljust(files[fileNum].name, ' ', longestNameLength + MARGIN);
+            content = ljust(files[fileNum].name, ' ', longestNameLength + MARGIN);
         }
         if (LONG_FORMAT) {
             std::string fileSize = HUMAN_READABLE ? humanSize(files[fileNum].size) : std::to_string(files[fileNum].size);
-            std::cout << ljust(files[fileNum].name, ' ', longestNameLength + MARGIN) 
-                      << format_time(*files[fileNum].lastWrite) << ljust("", ' ', MARGIN)
-                      << fileSize << "\n";
+            content = ljust(files[fileNum].name, ' ', longestNameLength + MARGIN) 
+                      + format_time(*files[fileNum].lastWrite) + ljust("", ' ', MARGIN)
+                      + (files[fileNum].fileType == Directory ? "" :fileSize) + "\n";
         }
+
+        // Different colours for file types using ANSI escape codes
+        // https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences
+        int colour = 97;
+
+        switch (files[fileNum].fileType){
+        case Directory:
+            colour = 94;                // Bright blue
+            break;
+        case Executable:
+            colour = 92;                // Bright green
+            break;
+        case Regular:
+            colour = 39;                // Default foreground colour
+            break;
+        }
+
+        std::cout << std::format("\033[{}m{}\033[0m", colour, content);
     }
 }
 
