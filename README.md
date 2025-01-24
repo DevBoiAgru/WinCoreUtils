@@ -12,4 +12,4 @@ The output structure and formatting may differ from the GNU Coreutils.
 
 ## Known issues:
 
--   ls does not support wide characters
+-   ls does not output unicode characters correctly
